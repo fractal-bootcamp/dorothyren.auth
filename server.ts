@@ -84,16 +84,6 @@ app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
 
-//this line imports express
-const express = require('express')
-// app contains express 
-const app = express()
-// variable that represents the port we are running on
-const port = 3000
-const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(express.json())
-
 const users = [
     {
         email: "bill@bill.com",
