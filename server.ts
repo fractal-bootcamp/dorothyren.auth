@@ -21,9 +21,6 @@ const users = [
     }
 ]
 
-
-
-
 //when a client sends a request to the server at the "/" endpoint, the server responds with "hello world!"
 app.get('/', (req, res) => {
     res.send('Hello World!')
