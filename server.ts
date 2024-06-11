@@ -1,8 +1,8 @@
-import { Request } from "express";
+import { Request, RequestHandler } from "express";
 import client from "./client"
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 3001
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
@@ -10,6 +10,8 @@ const cookieParser = require('cookie-parser');
 app.use(express.urlencoded({ extended: true }))
 //more middleware that interprets json bodies 
 app.use(express.json())
+
+app.use(cookieParser())
 
 
 //when the client sends a get request to the server at the "/" endpoint, the server responds with "Hello World!"
@@ -19,8 +21,8 @@ app.get('/', (req, res) => {
 
 //IsAuthed function 
 async function isAuthed(req: Request) {
-    const userId = req.cookies.userId
-    console.log("MY COOKIES ARE: ", req.cookies, "MY ID IS: ", userId)
+    const userId = parseInt(req.cookies.userId)
+    console.log(req.cookies.userId)
     if (userId) {
         //does that user exist in the database? 
         const user = await client.user.findUnique({
@@ -36,9 +38,16 @@ async function isAuthed(req: Request) {
 
 
 //LOGIN PAGE
-app.get('/login', (req, res) => {
-    res.sendFile(__dirname + "/login.html")
+app.get('/login', async (req, res) => {
+    const isLoggedIn = await isAuthed(req)
+    if (isLoggedIn) {
+        res.redirect('/dashboard')
+    }
+    else {
+        res.sendFile(__dirname + "/login.html")
+    }
 })
+
 
 
 //we need to get emails and passwords from the request
@@ -74,8 +83,10 @@ app.post('/login', async (req, res) => {
 //SIGN UP PAGE
 
 //create the sign up page
-app.get('/signup', (req, res) => {
-    res.sendFile(__dirname + "/signup.html")
+app.get('/signup', async (req, res) => {
+    const _isAuthed = await isAuthed(req)
+    if (_isAuthed) return res.redirect("/dashboard")
+    return res.sendFile(__dirname + "/signup.html")
 })
 //we need to collect emails and passwords from the sign up page using a POST request
 app.post('/signup', async (req, res) => {
@@ -100,6 +111,12 @@ app.get('/dashboard', async (req, res) => {
     if (_isAuthed) return res.sendFile(__dirname + "/dashboard.html")
     return res.redirect("/login")
 })
+
+//LOGOUT ROUTE
+app.get('/logout', (req, res) => {
+    res.clearCookie('userId');
+    return res.redirect('/login');
+});
 
 
 //sets up the server so that it is always listening on port=port
