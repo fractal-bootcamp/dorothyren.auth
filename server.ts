@@ -1,3 +1,10 @@
+//on every express app, need to pass middleware
+
+//res.something modifies the response before it gets sent off
+//add cookies to remember when users are authed
+//create a database to track rather than using random isAuthed
+//npx prisma init
+
 import { Request, RequestHandler } from "express";
 import client from "./client"
 const express = require('express')
